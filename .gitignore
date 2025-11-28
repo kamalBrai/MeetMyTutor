@@ -1,27 +1,145 @@
 # Python
-*.pyc
-__pycache__/
-*.pyo
-*.pyd
 *.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info
+dist
+build
+eggs
+.eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__/
+*.pyc
 
-# Environment
-env/
-venv/
+# Virtual Environment
 myenv2/
-.env
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv
+pyvenv.cfg
 
 # Django
-*.sqlite3
-db.sqlite3
-/staticfiles/
-media/
-
-# VS Code
-.vscode/
-
-# MacOS
-.DS_Store
-
-# Logs
 *.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/media
+/staticfiles
+/static_root
+
+# Django Migrations (uncomment if you don't want to track migrations)
+# **/migrations/*.py
+# !**/migrations/__init__.py
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE - VSCode
+.vscode/
+*.code-workspace
+.history/
+
+# IDE - PyCharm
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# IDE - Other
+*.swp
+*.swo
+*.swn
+*~
+.project
+.pydevproject
+.settings/
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Testing
+.coverage
+.pytest_cache/
+.tox/
+htmlcov/
+*.cover
+.hypothesis/
+nosetests.xml
+coverage.xml
+*.coveragerc
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# Node (if using frontend build tools)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Backup files
+*.bak
+*.backup
+*.tmp
+
+# Compiled translations
+*.mo
+*.pot
+
+# Secret keys and credentials
+secrets.json
+credentials.json
+*.pem
+*.key
+
+# Cache
+.cache/
+*.cache
