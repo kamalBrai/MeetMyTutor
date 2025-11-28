@@ -20,7 +20,7 @@
               <th scope="col" class="px-6 py-4 font-semibold">S.NO</th>
               <th scope="col" class="px-6 py-4 font-semibold">Profile</th>
               <th scope="col" class="px-6 py-4 font-semibold">Tutor</th>
-              <th scope="col" class="px-6 py-4 font-semibold">Subjects you choosed</th>
+              <th scope="col" class="px-6 py-4 font-semibold">Subjects you chose</th>
               <th scope="col" class="px-6 py-4 font-semibold">Requested Date/Time</th>
               <th scope="col" class="px-6 py-4 font-semibold">Status</th>
               <th scope="col" class="px-6 py-4 font-semibold">Actions</th>
@@ -28,80 +28,85 @@
           </thead>
           <tbody class="divide-y divide-gray-200 text-sm">
 
-           {% for i in list_req  %}
-
+            {% for i in list_req %}
             <tr class="hover:bg-gray-50 transition">
-              <td class="px-6 py-4">{{forloop.counter}}</td>
+              <td class="px-6 py-4">{{ forloop.counter }}</td>
 
-               <!-- Profile image -->
+              <!-- Tutor profile image -->
               <td class="px-6 py-4">
                 {% if i.tutor_user.profile_img %}
-                <a href="{% url 'view_tutor_profile2' i.id %}"><img class="w-12 h-12 rounded-full object-cover border" src="{{ i.tutor_user.profile_img.url }}" alt="student image"></a>
+                  <a href="{% url 'view_tutor_profile2' i.id %}">
+                    <img class="w-12 h-12 rounded-full object-cover border" src="{{ i.tutor_user.profile_img.url }}" alt="tutor image">
+                  </a>
                 {% else %}
-                <a href="{% url 'view_tutor_profile2' i.id %}">
-                <img class="w-12 h-12 rounded-full object-cover border" src="{% static 'images/default.jpg' %}" alt="default image"></a>
+                  <a href="{% url 'view_tutor_profile2' i.id %}">
+                    <img class="w-12 h-12 rounded-full object-cover border" src="{% static 'images/default.jpg' %}" alt="default image">
+                  </a>
                 {% endif %}
               </td>
-              <td class="px-6 py-4">{{i.tutor_user.user.first_name}} {{i.tutor_user.user.last_name}}</td>
-              
-              <td>
-                {% for subject in i.subject.all %}
-                  <span class="inline-block bg-gray-200 text-gray-800 text-xs font-medium px-2 py-1 rounded mr-1">
-                    {{ subject.subject_name }}
-                  </span>
-                {% empty %}
+
+              <td class="px-6 py-4">{{ i.tutor_user.user.first_name }} {{ i.tutor_user.user.last_name }}</td>
+
+              <!-- Subjects column -->
+              <td class="px-6 py-4">
+                {% if i.subjects %}
+                  {% for subject in i.subjects %}
+                    <span class="inline-block bg-gray-200 text-gray-800 text-xs font-medium px-2 py-1 rounded mr-1">
+                      {{ subject }}
+                    </span>
+                  {% endfor %}
+                {% else %}
                   <span class="text-gray-400 italic">No subjects</span>
-                {% endfor %}
+                {% endif %}
               </td>
+
+              <!-- Requested date/time -->
               <td class="px-6 py-4">
                 {% if i.counter_start_date %}
-                {{i.counter_start_date}}, {{i.counter_time_from}}
+                  {{ i.counter_start_date }}, {{ i.counter_time_from }}
                 {% else %}
-                {{i.session_start_date}}, {{i.session_time_from}}
+                  {{ i.session_start_date }}, {{ i.session_time_from }}
                 {% endif %}
-               </td>
+              </td>
+
+              <!-- Status column -->
               <td class="px-6 py-4">
                 {% if i.status == "accepted" %}
-                  <span class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
-                    {{ i.status|title }}
-                  </span>
+                  <span class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">{{ i.status|title }}</span>
                 {% elif i.status == "rejected" %}
-                  <span class="inline-block bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium">
-                    {{ i.status|title }}
-                  </span>
+                  <span class="inline-block bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium">{{ i.status|title }}</span>
                 {% elif i.status == "counter offered" %}
-                  <span class="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium">
-                    {{ i.status|title }}
-                  </span>
+                  <span class="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium">{{ i.status|title }}</span>
                 {% else %}
-                  <span class="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-medium">
-                    {{ i.status|title }}
-                  </span>
+                  <span class="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-medium">{{ i.status|title }}</span>
                 {% endif %}
               </td>
-              {% if i.status == 'accepted' %}
-              <td class="px-6 py-5">
-              <a href="{% url 'my_tutors' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">view session     
-            </td>
-             
-            {% elif i.status == 'counter offered' %}
-            <td class="px-6 py-5">
-              <a href="{% url 'counter_offer_view' i.id %}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">Response to counter      
-               </a>
-            </td>
 
-            {% elif i.status == 'rejected' %}
-            <td class="px-6 py-5">
-              <a href="{% url 'counter_offer_view' i.id %}"><i class="text-gray-400">no action needed</i>  
-               </a>
-            </td>
-             {% else %}
-               <td class="px-6 py-5">
-                <i >waiting for tutor      
-                </i>
-              </td>
-               {% endif %}
-           
+              <!-- Actions column -->
+              {% if i.status == 'accepted' %}
+                <td class="px-6 py-5">
+                  <a href="{% url 'my_tutors' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">
+                    view session
+                  </a>
+                </td>
+              {% elif i.status == 'counter offered' %}
+                <td class="px-6 py-5">
+                  <a href="{% url 'counter_offer_view' i.id %}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">
+                    Response to counter
+                  </a>
+                </td>
+              {% elif i.status == 'rejected' %}
+                <td class="px-6 py-5">
+                  <a href="{% url 'counter_offer_view' i.id %}"><i class="text-gray-400">no action needed</i></a>
+                </td>
+              {% else %}
+                <td class="px-6 py-5"><i>waiting for tutor</i></td>
+              {% endif %}
+
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-4 text-gray-500">No session requests yet.</td>
             </tr>
             {% endfor %}
 

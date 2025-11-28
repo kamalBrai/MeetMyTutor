@@ -1,5 +1,7 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
+
 <div class="flex h-screen bg-yellow-50">
 
   <!-- Left Pane: Chats -->
@@ -9,27 +11,59 @@
       {% for chat in chats %}
       <li class="hover:bg-yellow-100 cursor-pointer border-b border-gray-200">
         <a href="{% url 'personal_chat' chat.user.id %}" class="flex items-center p-4">
-          <img class="w-12 h-12 rounded-full mr-3 object-cover border" 
-               src="#" alt="">
+
+          <!-- Profile Image Section -->
+          {% if chat.user.profile.profile_img %}
+            <img class="w-12 h-12 rounded-full mr-3 object-cover border" 
+                 src="{{ chat.user.profile.profile_img.url }}" alt="Profile Image">
+          {% elif chat.user.student.profile_img %}
+            <img class="w-12 h-12 rounded-full mr-3 object-cover border" 
+                 src="{{ chat.user.student.profile_img.url }}" alt="Profile Image">
+          {% else %}
+            <img class="w-12 h-12 rounded-full mr-3 object-cover border" 
+                 src="{% static 'images/default-profile.png' %}" alt="Default Profile">
+          {% endif %}
+
+          <!-- Chat Info Section -->
           <div class="flex-1">
             <p class="font-semibold text-gray-900">{{ chat.user.username }}</p>
+
             {% if chat.last_message %}
-            <p class="text-gray-500 text-sm truncate">{{ chat.last_message.content }}</p>
+              <p class="text-gray-500 text-sm truncate">{{ chat.last_message.content }}</p>
+            {% else %}
+              <p class="text-gray-400 text-sm italic">No messages yet</p>
             {% endif %}
+
+            <!-- Optional: Show role -->
+            <p class="text-xs text-gray-500 mt-1">
+              {% if chat.user.profile %}
+                Tutor
+              {% elif chat.user.student %}
+                Student
+              {% endif %}
+            </p>
           </div>
+
+          <!-- Last Message Time -->
           {% if chat.last_message %}
-          <span class="text-gray-400 text-xs">{{ chat.last_message.timestamp|date:"H:i" }}</span>
+          <span class="text-gray-400 text-xs ml-2">
+            {{ chat.last_message.timestamp|date:"H:i" }}
+          </span>
           {% endif %}
+
         </a>
       </li>
+      {% empty %}
+      <li class="p-4 text-gray-500 text-center">No chats available</li>
       {% endfor %}
     </ul>
   </aside>
 
-  <!-- Right Pane: Empty by default or can embed conversation here -->
+  <!-- Right Pane: Empty by default -->
   <div class="flex-1 flex items-center justify-center text-gray-400">
     Select a chat to start messaging
   </div>
 
 </div>
+
 {% endblock %}

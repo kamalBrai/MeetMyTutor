@@ -29,88 +29,86 @@
           </thead>
           <tbody class="divide-y divide-gray-200 text-sm">
 
-           {% for i in req_list  %}
+           {% for item in req_list %}
             <tr class="hover:bg-gray-50 transition">
-              <td class="px-6 py-4">{{forloop.counter}}</td>
+              <td class="px-6 py-4">{{ forloop.counter }}</td>
               <td class="px-6 py-4">
-                {% if i.student_userprofile_img %}
-                <img class="w-12 h-12 rounded-full object-cover border" src="{{ i.student_user.profile_img.url }}" alt="student image">
+                {% if item.request.student_user.profile_img %}
+                  <img class="w-12 h-12 rounded-full object-cover border" src="{{ item.request.student_user.profile_img.url }}" alt="student image">
                 {% else %}
-                <img class="w-12 h-12 rounded-full object-cover border" src="{% static 'images/default.jpg' %}" alt="default image">
+                  <img class="w-12 h-12 rounded-full object-cover border" src="{% static 'images/default.jpg' %}" alt="default image">
                 {% endif %}
               </td> 
-              <td class="px-6 py-4">{{i.student_user.user.first_name}} {{i.student_user.user.last_name}}</td>
+              <td class="px-6 py-4">{{ item.request.student_user.user.first_name }} {{ item.request.student_user.user.last_name }}</td>
               
-              <td>
-                {% for subject in i.subject.all %}
-                  <span class="inline-block bg-gray-200 text-gray-800 text-xs font-medium px-2 py-1 rounded mr-1">
-                    {{ subject.subject_name }}
-                  </span>
-                {% empty %}
+              <!-- Updated Subject Column -->
+              <td class="px-6 py-4">
+                {% if item.request.subjects %}
+                  {% for subject in item.request.subjects %}
+                    <span class="inline-block bg-gray-200 text-gray-800 text-xs font-medium px-2 py-1 rounded mr-1">
+                      {{ subject }}
+                    </span>
+                  {% endfor %}
+                {% else %}
                   <span class="text-gray-400 italic">No subjects</span>
-                {% endfor %}
+                {% endif %}
               </td>
-              <td class="px-6 py-4">{{i.session_start_date}}, {{i.session_time_from}}</td>
+              
+              <td class="px-6 py-4">{{ item.request.session_start_date }}, {{ item.request.session_time_from }}</td>
               
               <td class="px-6 py-4">
-                {% if i.status == "accepted" %}
+                {% if item.request.status == "accepted" %}
                   <span class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
-                    {{ i.status|title }}
+                    {{ item.request.status|title }}
                   </span>
-                {% elif i.status == "rejected" %}
+                {% elif item.request.status == "rejected" %}
                   <span class="inline-block bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium">
-                    {{ i.status|title }}
+                    {{ item.request.status|title }}
                   </span>
-                {% elif i.status == "counter offered" %}
+                {% elif item.request.status == "counter offered" %}
                   <span class="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium">
-                    {{ i.status|title }}
+                    {{ item.request.status|title }}
                   </span>
                 {% else %}
                   <span class="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-medium">
-                    {{ i.status|title }}
+                    {{ item.request.status|title }}
                   </span>
                 {% endif %}
               </td>
               
-              {% if i.status == 'accepted' %}
-              <td class="px-6 py-5">
-              <a href="{% url 'mystudents' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">view session      
-               </a>
-            </td>
-            {% endif %}
-
-            {% if i.status == 'counter offered' %}
-            <td class="px-6 py-5">
-              <a href="student_payment.html" class="text-gray-400" ><i>waiting for Response</i>  
-               </a>
-            </td>
-            {% endif %}
-
-            {% if i.status == 'rejected' %}
-            <td class="px-6 py-5">
-              <a href="student_payment.html" class="text-gray-400"><i> No action needed </i>   
-               </a>
-            </td>
-            {% endif %}
-             
-            {% if i.status == 'pending' %}
-            <td class="px-6 py-5">
-              <a href="{% url 'counter_offer' i.id %}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">View Request     
-              </a>
-            </td>
-            {% endif %}
-            <td class="px-6 py-5">
-              {% if i.is_edit %}
-                   <i>cannot edit</i>
-              {% elif i.status == 'pending' %}
-                   <i></i>
-              {% else %}
-                <a href="{% url 'edit_request' i.id %}"><i class="fa-solid fa-pen-to-square"></i>
-                </a>
+              {% if item.request.status == 'accepted' %}
+                <td class="px-6 py-5">
+                  <a href="{% url 'mystudents' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">view session</a>
+                </td>
+              {% elif item.request.status == 'counter offered' %}
+                <td class="px-6 py-5">
+                  <a href="student_payment.html" class="text-gray-400"><i>waiting for Response</i></a>
+                </td>
+              {% elif item.request.status == 'rejected' %}
+                <td class="px-6 py-5">
+                  <a href="student_payment.html" class="text-gray-400"><i> No action needed </i></a>
+                </td>
+              {% elif item.request.status == 'pending' %}
+                <td class="px-6 py-5">
+                  <a href="{% url 'counter_offer' item.request.id %}" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">View Request</a>
+                </td>
               {% endif %}
-            </td> 
+
+              <td class="px-6 py-5">
+                {% if item.request.is_edit %}
+                  <i>cannot edit</i>
+                {% elif item.request.status == 'pending' %}
+                  <i></i>
+                {% else %}
+                  <a href="{% url 'edit_request' item.request.id %}"><i class="fa-solid fa-pen-to-square"></i></a>
+                {% endif %}
+              </td> 
             </tr>
-            {% endfor %}
+           {% empty %}
+            <tr>
+              <td colspan="8" class="text-center py-4 text-gray-500">No session requests yet.</td>
+            </tr>
+           {% endfor %}
 
           </tbody>
         </table>

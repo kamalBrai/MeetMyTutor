@@ -4,12 +4,38 @@
 
 <h2 class="mb-4 text-2xl font-bold text-gray-800">Nearest Tutors</h2>
 
-<div id="map" style="height: 500px; width: 100%; border-radius: 8px; margin-bottom: 2rem;"></div>
+<div id="map" style="height: 500px; width: 100%; border-radius: 8px; margin-bottom: 2rem; position: relative;"></div>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
+
+<style>
+  /* ✅ Legend Style */
+  .legend {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    font-size: 14px;
+    z-index: 1000;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    gap: 8px;
+  }
+  .legend-color {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+  }
+</style>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -27,7 +53,7 @@
       maxZoom: 19,
     }).addTo(map);
 
-    // User Marker
+    // ✅ Add user marker
     const userMarker = L.marker([userLat, userLng], {
       icon: new L.Icon({
         iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
@@ -39,7 +65,7 @@
       }),
     }).addTo(map).bindPopup("You are here").openPopup();
 
-    // Tutor List from Backend
+    // ✅ Tutors from backend
     const tutors = [
       {% for tutor in nearest %}
       {
@@ -52,12 +78,34 @@
       {% endfor %}
     ];
 
+    const routeColors = [
+      '#7e22ce', '#22c55e', '#3b82f6', '#f97316', '#ef4444',
+      '#14b8a6', '#eab308', '#6366f1', '#d946ef', '#8b5cf6'
+    ];
+
     const bounds = L.latLngBounds([userLat, userLng]);
+    const routes = {}; // store route controls by tutor id
+
+    // ✅ Create legend dynamically
+    const legend = L.control({ position: 'bottomright' });
+    legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = "<strong>Tutor Routes</strong><br/>";
+      tutors.forEach((tutor, i) => {
+        const color = routeColors[i % routeColors.length];
+        div.innerHTML += `
+          <div class="legend-item">
+            <span class="legend-color" style="background:${color};"></span>
+            <span>${tutor.name}</span>
+          </div>`;
+      });
+      return div;
+    };
+    legend.addTo(map);
 
     tutors.forEach((tutor, index) => {
       if (!tutor.lat || !tutor.lng) return;
 
-      // Add slight offset for overlapping markers (optional)
       const offsetLat = tutor.lat + (Math.random() * 0.0002 - 0.0001);
       const offsetLng = tutor.lng + (Math.random() * 0.0002 - 0.0001);
 
@@ -71,32 +119,67 @@
         popupAnchor: [0, -40]
       });
 
-      L.marker([offsetLat, offsetLng], { icon: tutorIcon })
+      const marker = L.marker([offsetLat, offsetLng], { icon: tutorIcon })
         .addTo(map)
-        .bindPopup(tutor.name);
+        .bindPopup(`<b>${tutor.name}</b>`);
 
       bounds.extend([offsetLat, offsetLng]);
 
-      L.Routing.control({
+      const color = routeColors[index % routeColors.length];
+
+      const router = L.Routing.osrmv1({
+        serviceUrl: 'https://router.project-osrm.org/route/v1',
+      });
+
+      // ✅ Normal route
+      const routeControl = L.Routing.control({
         waypoints: [
           L.latLng(userLat, userLng),
           L.latLng(tutor.lat, tutor.lng),
         ],
         lineOptions: {
-          styles: [{ color: '#7e22ce', weight: 4 }],
+          styles: [{ color: color, weight: 4, opacity: 0.8 }],
         },
+        router: router,
         createMarker: () => null,
         addWaypoints: false,
         draggableWaypoints: false,
         fitSelectedRoutes: false,
         show: false,
       }).addTo(map);
+
+      routes[tutor.id] = { control: routeControl, color: color };
+
+      // ✅ Highlight route when marker clicked
+      marker.on('click', () => {
+        if (window.activeHighlight) {
+          map.removeControl(window.activeHighlight);
+          window.activeHighlight = null;
+        }
+
+        const highlight = L.Routing.control({
+          waypoints: [
+            L.latLng(userLat, userLng),
+            L.latLng(tutor.lat, tutor.lng),
+          ],
+          lineOptions: {
+            styles: [{ color: color, weight: 7, opacity: 1 }],
+          },
+          router: router,
+          createMarker: () => null,
+          addWaypoints: false,
+          draggableWaypoints: false,
+          fitSelectedRoutes: true,
+          show: false,
+        }).addTo(map);
+
+        window.activeHighlight = highlight;
+      });
     });
 
     map.fitBounds(bounds, { padding: [50, 50] });
   });
 </script>
-
 
 {% if nearest %}
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">

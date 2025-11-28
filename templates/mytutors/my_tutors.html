@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base.html" %} 
 {% block content %}
 {% load static %}
 
@@ -9,27 +9,20 @@
     <div class="text-center mb-12">
       <h1 class="text-4xl font-bold text-gray-800 mb-2">My Tutors List</h1>
     </div>
-        <!-- View Completed Button -->
-        <div class="flex justify-start gap-3 py-3">
-            <a href="{% url 'my_tutors' %}"
-               class="inline-flex items-center 
-               {% if active_tab == 'all_tutors' %}bg-indigo-600 text-white{% else %}bg-green-600 text-white hover:bg-green-700{% endif %}
-               text-sm font-medium px-5 py-2 rounded-lg shadow-md transition duration-150">
-              View All Tutors
-            </a>
-            <a href="{% url 'my_tutors_ongoing' %}"
-               class="inline-flex items-center 
-               {% if active_tab == 'incomplete' %}bg-indigo-600 text-white{% else %}bg-green-600 text-white hover:bg-green-700{% endif %}
-               text-sm font-medium px-5 py-2 rounded-lg shadow-md transition duration-150">
-              View Ongoing Sessions
-            </a>
-            <a href="{% url 'my_tutors_complete' %}"
-               class="inline-flex items-center 
-               {% if active_tab == 'completed' %}bg-indigo-600 text-white{% else %}bg-green-600 text-white hover:bg-green-700{% endif %}
-               text-sm font-medium px-5 py-2 rounded-lg shadow-md transition duration-150">
-              View Completed Sessions
-            </a>
-          </div>
+
+    <!-- View Tabs -->
+    <div class="flex justify-start gap-3 py-3">
+      <a href="{% url 'my_tutors' %}" class="inline-flex items-center 
+         {% if active_tab == 'all_tutors' %}bg-indigo-600 text-white{% else %}bg-green-600 text-white hover:bg-green-700{% endif %}
+         text-sm font-medium px-5 py-2 rounded-lg shadow-md transition duration-150">View All Tutors</a>
+      <a href="{% url 'my_tutors_ongoing' %}" class="inline-flex items-center 
+         {% if active_tab == 'incomplete' %}bg-indigo-600 text-white{% else %}bg-green-600 text-white hover:bg-green-700{% endif %}
+         text-sm font-medium px-5 py-2 rounded-lg shadow-md transition duration-150">View Ongoing Sessions</a>
+      <a href="{% url 'my_tutors_complete' %}" class="inline-flex items-center 
+         {% if active_tab == 'completed' %}bg-indigo-600 text-white{% else %}bg-green-600 text-white hover:bg-green-700{% endif %}
+         text-sm font-medium px-5 py-2 rounded-lg shadow-md transition duration-150">View Completed Sessions</a>
+    </div>
+
     <!-- Requests Table -->
     <div class="bg-white shadow-xl rounded-3xl overflow-hidden">
       <div class="overflow-x-auto">
@@ -48,69 +41,80 @@
           </thead>
           <tbody class="divide-y divide-gray-200 text-sm">
 
-           {% for i in list_req  %}
-
+           {% for i in list_req %}
             <tr class="hover:bg-gray-50 transition">
-              <td class="px-6 py-4">{{forloop.counter}}</td>
+              <td class="px-6 py-4">{{ forloop.counter }}</td>
+
+              <!-- Profile image -->
               <td class="px-6 py-4">
                 {% if i.tutor_user.profile_img %}
-                <a href="{% url 'view_tutor_profile2' i.id %}"><img class="w-12 h-12 rounded-full object-cover border" src="{{ i.tutor_user.profile_img.url }}" alt="student image"></a>
+                  <a href="{% url 'view_tutor_profile2' i.id %}">
+                    <img class="w-12 h-12 rounded-full object-cover border" src="{{ i.tutor_user.profile_img.url }}" alt="tutor image">
+                  </a>
                 {% else %}
-                <a href="{% url 'view_tutor_profile2' i.id %}">
-                <img class="w-12 h-12 rounded-full object-cover border" src="{% static 'images/default.jpg' %}" alt="default image">
-            </a>
+                  <a href="{% url 'view_tutor_profile2' i.id %}">
+                    <img class="w-12 h-12 rounded-full object-cover border" src="{% static 'images/default.jpg' %}" alt="default image">
+                  </a>
                 {% endif %}
               </td>
 
-              <td class="px-6 py-4">{{i.tutor_user.user.first_name}} {{i.tutor_user.user.last_name}}</td>
+              <td class="px-6 py-4">{{ i.tutor_user.user.first_name }} {{ i.tutor_user.user.last_name }}</td>
               
-              <td>
-                {% for subject in i.subject.all %}
-                  <span class="inline-block bg-gray-200 text-gray-800 text-xs font-medium px-2 py-1 rounded mr-1">
-                    {{ subject.subject_name }}
-                  </span>
-                {% empty %}
+              <!-- Subjects column -->
+              <td class="px-6 py-4">
+                {% if i.subjects %}
+                  {% for subject in i.subjects %}
+                    <span class="inline-block bg-gray-200 text-gray-800 text-xs font-medium px-2 py-1 rounded mr-1">
+                      {{ subject }}
+                    </span>
+                  {% endfor %}
+                {% else %}
                   <span class="text-gray-400 italic">No subjects</span>
-                {% endfor %}
+                {% endif %}
               </td>
+
               <td class="px-6 py-4">
                 {% if i.counter_start_date %}
-                {{i.counter_start_date}} - {{i.counter_end_date}}
+                  {{ i.counter_start_date }} - {{ i.counter_end_date }}
                 {% else %}
-                {{i.session_start_date}} - {{i.session_end_date}}
+                  {{ i.session_start_date }} - {{ i.session_end_date }}
                 {% endif %}
-               </td>
+              </td>
+              
               <td class="px-6 py-4">
                 {% if i.counter_time_from %}
-                {{i.counter_time_from}} - {{i.counter_time_to}}
+                  {{ i.counter_time_from }} - {{ i.counter_time_to }}
                 {% else %}
-                {{i.session_time_from}} - {{i.session_time_to}}
+                  {{ i.session_time_from }} - {{ i.session_time_to }}
                 {% endif %}
-               </td>
-               <td class="px-6 py-4">
+              </td>
+
+              <td class="px-6 py-4">
                 {% if i.is_complete %}
                   <i>Completed</i>
-                  {%else%}
-                  <p>on going</p>
+                {% else %}
+                  <p>Ongoing</p>
                 {% endif %}
-               </td>
-               <td class="px-2 py-1">
-                    {% if request.user.usertype == 'tutor' %}
-        <!-- Chat with student -->
-        <a href="{% url 'personal_chat' i.student_user.user.id %}" 
-           class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-xs hover:bg-blue-700">
-           Message
-        </a>
-    {% else %}
-        <!-- Chat with tutor -->
-        <a href="{% url 'personal_chat' i.tutor_user.user.id %}" 
-           class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-xs hover:bg-blue-700">
-           Message
-        </a>
-    {% endif %}
-               </td>
+              </td>
+
+              <td class="px-2 py-1">
+                {% if request.user.usertype == 'tutor' %}
+                  <!-- Chat with student -->
+                  <a href="{% url 'personal_chat' i.student_user.user.id %}" 
+                     class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-xs hover:bg-blue-700">
+                     Message
+                  </a>
+                {% else %}
+                  <!-- Chat with tutor -->
+                  <a href="{% url 'personal_chat' i.tutor_user.user.id %}" 
+                     class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-xs hover:bg-blue-700">
+                     Message
+                  </a>
+                {% endif %}
+              </td>
             </tr>
             {% endfor %}
+
           </tbody>
         </table>
       </div>

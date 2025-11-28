@@ -1,38 +1,54 @@
-from django.shortcuts import render,redirect
-from profileapp.models import *
+from django.shortcuts import render, redirect
+from profileapp.models import Profile_Tutor
 from requestapp.models import Requesting_tutor
 from django.contrib import messages
 from mytutorapp.models import Feedback
 from django.db.models import Exists, OuterRef
-# Create your views here.
 
-#incomplete students
+# ---------------------------
+# Ongoing students (incomplete)
+# ---------------------------
 def mystudents(request):
     tutor = Profile_Tutor.objects.get(user=request.user)
-    data = Requesting_tutor.objects.filter(status='accepted',tutor_user=tutor,is_complete=False)
+    # Only accepted and ongoing sessions for this tutor
+    data = Requesting_tutor.objects.filter(
+        status='accepted',
+        tutor_user=tutor,
+        is_complete=False
+    )
     context = {
-        'data' : data,
+        'data': data,
         'active_tab': 'incomplete',
     }
-    return render(request,'student/incomplete_tutor_students.html',context)
+    return render(request, 'student/incomplete_tutor_students.html', context)
 
-#complete in table button
-def is_complete_view(request,id):
+
+# ---------------------------
+# Mark a session as complete
+# ---------------------------
+def is_complete_view(request, id):
     try:
         data = Requesting_tutor.objects.get(id=id)
         if request.method == 'POST':
-                data.is_complete = True
-                data.save()
-                return redirect('mystudents')
+            data.is_complete = True
+            data.save()
+            return redirect('mystudents')
     except Exception as e:
-        messages.error(request,f'{str(e)}')
+        messages.error(request, f'{str(e)}')
         return redirect('mystudents')
 
-#completed session 
+
+# ---------------------------
+# Completed sessions
+# ---------------------------
 def completed_view(request):
     tutor = Profile_Tutor.objects.get(user=request.user)
-    value = Requesting_tutor.objects.filter(status='accepted',is_complete=True)
-    value = value.annotate(
+    # Only accepted and completed sessions
+    value = Requesting_tutor.objects.filter(
+        status='accepted',
+        is_complete=True,
+        tutor_user=tutor
+    ).annotate(
         feedback_given=Exists(
             Feedback.objects.filter(
                 req_tutor=OuterRef('pk'),
@@ -41,16 +57,30 @@ def completed_view(request):
         )
     )
     context = {
-        'value' : value,
+        'value': value,
         'active_tab': 'completed'
     }
-    return render(request,'student/complete_tutor_students.html',context)
+    return render(request, 'student/complete_tutor_students.html', context)
 
-#all_students
+
+# ---------------------------
+# All students (accepted requests)
+# ---------------------------
 def all_students(request):
-    value = Requesting_tutor.objects.filter(status='accepted')
+    tutor = Profile_Tutor.objects.get(user=request.user)
+    value = Requesting_tutor.objects.filter(
+        status='accepted',
+        tutor_user=tutor
+    ).annotate(
+        feedback_given=Exists(
+            Feedback.objects.filter(
+                req_tutor=OuterRef('pk'),
+                tutor_user=tutor
+            )
+        )
+    )
     context = {
-        'value' : value,
+        'value': value,
         'active_tab': 'all_students',
     }
-    return render(request,'student/all_tutor_students.html',context)
+    return render(request, 'student/all_tutor_students.html', context)

@@ -8,21 +8,15 @@
     <!-- Tutor Profile Card -->
     <div class="bg-white rounded-2xl shadow-xl p-6 transition-transform hover:scale-[1.01]">
       {% if data.profile_img %}
-      <img src="{{data.profile_img.url}}"
-      alt="student_profile"
-      class="w-full aspect-square object-cover rounded-xl shadow-md mb-5">
+      <img src="{{data.profile_img.url}}" alt="student_profile" class="w-full aspect-square object-cover rounded-xl shadow-md mb-5">
       {% else %}
-      <img src="{% static 'images/default.jpg' %}"
-      alt="student"
-      class="w-full aspect-square object-cover rounded-xl shadow-md mb-5">
+      <img src="{% static 'images/default.jpg' %}" alt="student" class="w-full aspect-square object-cover rounded-xl shadow-md mb-5">
       {% endif %}
 
       <h3 class="text-2xl font-bold text-gray-800 mb-1">{{data.user.first_name}} {{data.user.last_name}}</h3>
       <p class="text-gray-700" id="tutor_actual_rate"><span class="font-semibold">Grade:</span> {{data.grade}}</p>
       <p class="text-gray-700"><span class="font-semibold">Location:</span> {{data.district}}, Nepal</p>
-      <p class="text-sm text-gray-600 mt-4">
-        {{data.desc}}
-      </p>
+      <p class="text-sm text-gray-600 mt-4">{{data.desc}}</p>
     </div>
 
     <!-- Forms Section -->
@@ -37,7 +31,6 @@
             <div>
               <label class="block font-medium text-gray-700 mb-1">Session Time From</label>
               <input type="text" class="w-full border rounded-md p-2" value="{{data2.session_time_from}}" readonly />
-              </select>
             </div>
             <div>
               <label class="block font-medium text-gray-700 mb-1">Session Time To</label>
@@ -46,33 +39,28 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-         <!-- counter_offer.html -->
-          <div>
-            <label class="block font-medium text-gray-700 mb-1">Session Start Date</label>
-            <input type="date" class="w-full border rounded-md p-2"
-                  value="{{ data2.session_start_date|date:'Y-m-d' }}" disabled />
-          </div>
-          <div>
-            <label class="block font-medium text-gray-700 mb-1">Session End Date</label>
-            <input type="date" class="w-full border rounded-md p-2"
-                  value="{{ data2.session_end_date|date:'Y-m-d' }}" readonly />
-          </div>
+            <div>
+              <label class="block font-medium text-gray-700 mb-1">Session Start Date</label>
+              <input type="date" class="w-full border rounded-md p-2" value="{{ data2.session_start_date|date:'Y-m-d' }}" disabled />
+            </div>
+            <div>
+              <label class="block font-medium text-gray-700 mb-1">Session End Date</label>
+              <input type="date" class="w-full border rounded-md p-2" value="{{ data2.session_end_date|date:'Y-m-d' }}" readonly />
+            </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block font-medium text-gray-700 mb-1">Proposed Rate (per hour)</label>
-              <input type="number" min="1" step="any" value="{{data2.proposed_rate}}"class="w-full border rounded-md p-2" disabled /> 
+              <input type="number" min="1" step="any" value="{{data2.proposed_rate}}" class="w-full border rounded-md p-2" disabled /> 
             </div>
           </div>
 
-          <div class="text-center pt-6 ">
-            <button type="submit" value="accepted"
-              name="submit_btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition duration-200">
+          <div class="text-center pt-6">
+            <button type="submit" value="accepted" name="submit_btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition duration-200">
               Accept Request
             </button>
-            <button type="submit" value="rejected"
-             name="submit_btn" class="bg-red-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition duration-200">
+            <button type="submit" value="rejected" name="submit_btn" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md transition duration-200">
               Reject Request
             </button>
           </div>
@@ -84,61 +72,94 @@
         <h2 class="text-2xl font-semibold mb-6 text-gray-800">Tutor's Counter Offer</h2>
         <form id="counterSessionForm" class="space-y-6" method="post" action="{% url 'counter_offer' data2.id %}">
         {% csrf_token %}
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- Counter Session Time and Duration -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label class="block font-medium text-gray-700 mb-1">Counter Session Time From</label>
-              <input type="time" class="w-full border rounded-md p-2" name="counter_time_from"  />
+              <input type="time" class="w-full border rounded-md p-2" name="counter_time_from" id="counter_time_from" required />
             </div>
+
+            <div>
+              <label class="block font-medium text-gray-700 mb-1">Duration (hours)</label>
+              <select id="counter_duration" name="counter_duration" class="w-full border rounded-md p-2">
+                <option value="1">1 hour</option>
+                <option value="2">2 hours</option>
+                <option value="3">3 hours</option>
+              </select>
+            </div>
+
             <div>
               <label class="block font-medium text-gray-700 mb-1">Counter Session Time To</label>
-              <input type="time" class="w-full border rounded-md p-2" name="counter_time_to"  />
+              <input type="time" class="w-full border rounded-md p-2" name="counter_time_to" id="counter_time_to" required readonly />
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <script>
+            const timeFrom = document.getElementById("counter_time_from");
+            const timeTo = document.getElementById("counter_time_to");
+            const durationSelect = document.getElementById("counter_duration");
+
+            function updateCounterTimeTo() {
+              if (timeFrom.value && durationSelect.value) {
+                let [hours, minutes] = timeFrom.value.split(":").map(Number);
+                const duration = parseInt(durationSelect.value);
+                hours += duration;
+                if (hours >= 24) hours -= 24;
+                const hoursStr = String(hours).padStart(2, "0");
+                const minutesStr = String(minutes).padStart(2, "0");
+                timeTo.value = `${hoursStr}:${minutesStr}`;
+              }
+            }
+
+            timeFrom.addEventListener("change", updateCounterTimeTo);
+            durationSelect.addEventListener("change", updateCounterTimeTo);
+            window.addEventListener("load", updateCounterTimeTo);
+          </script>
+
+          <!-- Session Dates -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
             <div>
-              <label class="block font-medium text-gray-700 mb-1">Counter Start Date</label>
+              <label class="block font-medium text-gray-700 mb-1">Session Start Date</label>
               <input type="date" class="w-full border rounded-md p-2" name="counter_start_date" id="counter_start_date" required />
             </div>
             <div>
-              <label class="block font-medium text-gray-700 mb-1">Counter End Date</label>
+              <label class="block font-medium text-gray-700 mb-1">Session End Date</label>
               <input type="date" class="w-full border rounded-md p-2" name="counter_end_date" id="counter_end_date" required />
             </div>
           </div>
-          
-          <script>
-            // Get today's date in YYYY-MM-DD format
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById("counter_start_date").setAttribute('min', today);
-            document.getElementById("counter_end_date").setAttribute('min', today);
-          </script>
-          
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <script>
+            const today = new Date().toISOString().split('T')[0];
+            const startDateInput = document.getElementById("counter_start_date");
+            const endDateInput = document.getElementById("counter_end_date");
+
+            startDateInput.setAttribute('min', today);
+            endDateInput.setAttribute('min', today);
+
+            startDateInput.addEventListener('change', function() {
+              const startDate = this.value;
+              endDateInput.setAttribute('min', startDate);
+              if (endDateInput.value < startDate) {
+                endDateInput.value = startDate;
+              }
+            });
+          </script>
+
+          <!-- Counter Rate & Description -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
             <div>
               <label class="block font-medium text-gray-700 mb-1">Counter Proposed Rate (per hour)</label>
-              <div class="mb-4">
-                <input type="number" 
-                       name="counter_proposed_rate" 
-                       min="50" 
-                       step="any" 
-                       id="user_rate_per_hour" 
-                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-yellow-500 focus:border-yellow-500" 
-                       required />
-                <p id="rate_error" class="text-red-500 text-sm mt-1 hidden">Rate must be at least 50</p>
-              </div>
+              <input type="number" name="counter_proposed_rate" min="50" step="any" class="w-full border rounded-md p-2" required />
             </div>
             <div>
               <label class="block font-medium text-gray-700 mb-1">Description</label>
-              <textarea type="text"
-                     class="w-full border rounded-md p-2"
-                     name="desc" required /></textarea>
+              <textarea class="w-full border rounded-md p-2" name="desc" required></textarea>
             </div>
           </div>
 
           <div class="text-center pt-4">
-            <button type="submit"
-              class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-md transition duration-200">
+            <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-md transition duration-200">
               Submit Counter Offer
             </button>
           </div>

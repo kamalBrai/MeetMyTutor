@@ -1,115 +1,118 @@
 {% extends "base.html" %}
 {% block content %}
-  {% load static %}
-  <div class="bg-gradient-to-r from-indigo-50 to-purple-100 py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <!-- Header -->
-      <div class="text-center mb-10">
-        <h1 class="text-4xl font-bold text-gray-800">My Students</h1>
-        <p class="text-lg text-gray-600 mt-2">View and manage your accepted students.</p>
-      </div>
+{% load static %}
 
-      <!-- View Completed Button -->
-      <div class="flex justify-start gap-3 py-3">
-        <a href="{% url 'all_students' %}"
-           class="inline-flex items-center 
-           {% if active_tab == 'all_students' %}bg-indigo-600 text-white{% else %}bg-green-600 text-white hover:bg-green-700{% endif %}
-           text-sm font-medium px-5 py-2 rounded-lg shadow-md transition duration-150">
-          View All Students
-        </a>
-        <a href="{% url 'mystudents' %}"
-           class="inline-flex items-center 
-           {% if active_tab == 'incomplete' %}bg-indigo-600 text-white{% else %}bg-green-600 text-white hover:bg-green-700{% endif %}
-           text-sm font-medium px-5 py-2 rounded-lg shadow-md transition duration-150">
-          View Ongoing Sessions
-        </a>
-        <a href="{% url 'completed' %}"
-           class="inline-flex items-center 
-           {% if active_tab == 'completed' %}bg-indigo-600 text-white{% else %}bg-green-600 text-white hover:bg-green-700{% endif %}
-           text-sm font-medium px-5 py-2 rounded-lg shadow-md transition duration-150">
-          View Completed Sessions
-        </a>
-      </div>
-      
-  
-      <!-- Table Section -->
-      {% if value %}
-      <div class="overflow-x-auto">
-        <table class="min-w-full bg-white shadow-md rounded-xl overflow-hidden">
-          <thead class="bg-indigo-100 text-gray-700 text-sm uppercase tracking-wider">
-            <tr>
-              <th class="px-6 py-3 text-left">S.No</th>
-              <th class="px-6 py-3 text-left">Profile</th>
-              <th class="px-6 py-3 text-left">Student Name</th>
-              <th class="px-6 py-3 text-left">Subjects</th>
-              <th class="px-6 py-3 text-left">Session Date</th>
-              <th class="px-6 py-3 text-left">Session Time</th>
-       
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200 text-sm text-gray-700">
-            {% for i in value %}
-            <tr class="hover:bg-indigo-50 transition duration-150">
-              <td class="px-6 py-4">
-                {{forloop.counter}}
-              </td>
-              <!-- Profile image -->
-              <td class="px-6 py-4">
-                {% if i.profile_img %}
-                <a href="{% url 'view_student_profile' i.id %}"><img class="w-12 h-12 rounded-full object-cover border" src="{{ i.profile_img.url }}" alt="student image"></a>
-                {% else %}
-                <a href="{% url 'view_student_profile' i.id %}"><img class="w-12 h-12 rounded-full object-cover border" src="{% static 'images/default.jpg' %}" alt="default image"></a>
-                {% endif %}
-              </td>
-  
-              <!-- Name -->
-              <td class="px-6 py-4 font-semibold">
-                {{ i.student_user.user.first_name }} {{ i.student_user.user.last_name }}
-              </td>
-  
-              <!-- Subjects -->
-              <td class="px-6 py-4">
-                {% for subject in i.subject.all %}
-                  <span class="inline-block bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full mr-1">{{ subject.subject_name }}</span>
-                {% empty %}
-                  <span class="text-gray-400 italic">No subjects</span>
-                {% endfor %}
-              </td>
-  
-              <td class="px-6 py-4">  
-                {% if i.counter_start_date %}
-               {{i.counter_start_date}} - {{i.counter_end_date}} 
-                  {% else %} 
-               {{i.session_start_date}} - {{i.session_end_date}}
-               {% endif %}
-             </td>
-
-             <td class="px-6 py-4">
-               {% if i.counter_time_from %}
-                   {{i.counter_time_from}} - {{i.counter_time_to}}
-
-                   {% else %}
-                   {{i.session_time_from}} - {{i.session_time_to}}
-                 {% endif %}
-             </td>
-       
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-        <p class="text-center text-gray-500 mt-8">No students available.</p>
-      {% endif %}
-  
-      <!-- Footer -->
-      <p class="mt-10 text-center text-gray-600">
-        Want to accept new students? 
-        <a href="tutor_requests.html" class="text-blue-600 font-medium hover:underline">Check pending requests</a>.
-      </p>
+<div class="bg-gradient-to-r from-indigo-50 to-purple-100 py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-bold text-gray-800">My Students</h1>
+      <p class="text-lg text-gray-600 mt-2">View and manage your accepted students.</p>
     </div>
+
+    <!-- Tabs for sessions -->
+    <div class="flex justify-start gap-3 py-3">
+      <a href="{% url 'all_students' %}"
+         class="inline-flex items-center 
+         {% if active_tab == 'all_students' %}bg-indigo-600 text-white{% else %}bg-green-600 text-white hover:bg-green-700{% endif %}
+         text-sm font-medium px-5 py-2 rounded-lg shadow-md transition duration-150">
+        View All Students
+      </a>
+      <a href="{% url 'mystudents' %}"
+         class="inline-flex items-center 
+         {% if active_tab == 'incomplete' %}bg-indigo-600 text-white{% else %}bg-green-600 text-white hover:bg-green-700{% endif %}
+         text-sm font-medium px-5 py-2 rounded-lg shadow-md transition duration-150">
+        View Ongoing Sessions
+      </a>
+      <a href="{% url 'completed' %}"
+         class="inline-flex items-center 
+         {% if active_tab == 'completed' %}bg-indigo-600 text-white{% else %}bg-green-600 text-white hover:bg-green-700{% endif %}
+         text-sm font-medium px-5 py-2 rounded-lg shadow-md transition duration-150">
+        View Completed Sessions
+      </a>
+    </div>
+
+    <!-- Students Table -->
+    {% if value %}
+    <div class="overflow-x-auto mt-6">
+      <table class="min-w-full bg-white shadow-md rounded-xl overflow-hidden">
+        <thead class="bg-indigo-100 text-gray-700 text-sm uppercase tracking-wider">
+          <tr>
+            <th class="px-6 py-3 text-left">S.No</th>
+            <th class="px-6 py-3 text-left">Profile</th>
+            <th class="px-6 py-3 text-left">Student Name</th>
+            <th class="px-6 py-3 text-left">Subjects</th>
+            <th class="px-6 py-3 text-left">Session Date</th>
+            <th class="px-6 py-3 text-left">Session Time</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 text-sm text-gray-700">
+          {% for i in value %}
+          <tr class="hover:bg-indigo-50 transition duration-150">
+            <td class="px-6 py-4">{{ forloop.counter }}</td>
+
+            <!-- Profile Image -->
+            <td class="px-6 py-4">
+              {% if i.student_user.profile_img %}
+                <a href="{% url 'view_student_profile' i.id %}">
+                  <img class="w-12 h-12 rounded-full object-cover border" src="{{ i.student_user.profile_img.url }}" alt="student image">
+                </a>
+              {% else %}
+                <a href="{% url 'view_student_profile' i.id %}">
+                  <img class="w-12 h-12 rounded-full object-cover border" src="{% static 'images/default.jpg' %}" alt="default image">
+                </a>
+              {% endif %}
+            </td>
+
+            <!-- Name -->
+            <td class="px-6 py-4 font-semibold">
+              {{ i.student_user.user.first_name }} {{ i.student_user.user.last_name }}
+            </td>
+
+            <!-- Subjects -->
+            <td class="px-6 py-4">
+              {% for subject in i.subject.all %}
+                <span class="inline-block bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full mr-1">{{ subject.subject_name }}</span>
+              {% empty %}
+                <span class="text-gray-400 italic">No subjects</span>
+              {% endfor %}
+            </td>
+
+            <!-- Session Date -->
+            <td class="px-6 py-4">
+              {% if i.counter_start_date %}
+                {{ i.counter_start_date }} - {{ i.counter_end_date }}
+              {% else %}
+                {{ i.session_start_date }} - {{ i.session_end_date }}
+              {% endif %}
+            </td>
+
+            <!-- Session Time -->
+            <td class="px-6 py-4">
+              {% if i.counter_time_from %}
+                {{ i.counter_time_from }} - {{ i.counter_time_to }}
+              {% else %}
+                {{ i.session_time_from }} - {{ i.session_time_to }}
+              {% endif %}
+            </td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="text-center text-gray-500 mt-8">No students available.</p>
+    {% endif %}
+
+    <!-- Footer -->
+    <p class="mt-10 text-center text-gray-600">
+      Want to accept new students? 
+      <a href="" class="text-blue-600 font-medium hover:underline">Check pending requests</a>.
+    </p>
+
   </div>
-  
-  
+</div>
+
 {% endblock content %}

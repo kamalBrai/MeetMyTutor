@@ -8,134 +8,140 @@
     <!-- Tutor Profile Card -->
     <div class="bg-white rounded-3xl shadow-xl p-6 flex flex-col items-center text-center">
       {% if tutor.profile_img %}
-        <img src="{{tutor.profile_img.url}}" alt="Tutor" class="w-48 h-48 rounded-full object-cover shadow-md border-4 border-yellow-400">
+      <img src="{{tutor.profile_img.url}}" alt="Tutor"
+        class="w-48 h-48 rounded-full object-cover shadow-md border-4 border-yellow-400">
       {% else %}
-        <img src="{% static 'images/default.jpg' %}" alt="Tutor" class="w-48 h-48 rounded-full object-cover shadow-md border-4 border-yellow-400">
+      <img src="{% static 'images/default.jpg' %}" alt="Tutor"
+        class="w-48 h-48 rounded-full object-cover shadow-md border-4 border-yellow-400">
       {% endif %}
 
       <div class="mt-6 space-y-2">
         <h2 class="text-2xl font-bold text-gray-900">{{tutor.user.first_name}} {{tutor.user.last_name}}</h2>
         <p class="text-lg text-gray-700"><strong>Rate:</strong> Rs. {{tutor.session_price}}/hr</p>
         <p class="text-gray-600"><strong>Location:</strong> {{tutor.district}}, Nepal</p>
-
-        <div class="flex justify-center items-center space-x-1 text-yellow-500">
-          <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
-          <span class="text-sm text-gray-600 ml-2">4.7 (85 Reviews)</span>
-        </div>
-
-        <p class="text-sm text-gray-500 mt-2 leading-relaxed">
-          {{tutor.desc}}
-        </p>
+        <p class="text-sm text-gray-500 mt-2 leading-relaxed">{{tutor.desc}}</p>
       </div>
     </div>
 
     <!-- Form Section -->
     <div class="lg:col-span-2 bg-white rounded-3xl shadow-xl p-8 space-y-8">
       <h3 class="text-3xl font-semibold text-gray-800 border-b pb-2">Request a Tutor Session</h3>
-      
+
       <form id="sessionForm" class="space-y-8" method="post">
         {% csrf_token %}
 
         <!-- Subject selection -->
         <div class="mb-6">
           <h4 class="text-lg font-semibold mb-3">Choose Subject(s) You Want Help With:</h4>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {% for subject in subjects %}
-              <label class="flex items-center space-x-2 bg-gray-50 shadow-sm rounded-lg px-4 py-2 border hover:bg-gray-100 cursor-pointer">
-                <input type="checkbox" name="subjects" value="{{ subject.id }}" class="form-checkbox" />
-                <span class="text-gray-800">{{ subject.subject_name }}</span>
-              </label>
-            {% empty %}
-              <p class="text-gray-500">No subjects found for this tutor.</p>
-            {% endfor %}
-          </div>
+
+          {% for level in subjects_by_level %}
+            <div class="mb-4">
+              <h5 class="font-medium text-gray-700 mb-2">{{ level.level }}</h5>
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {% for subject in level.subjects %}
+                  <label class="flex items-center space-x-2 bg-gray-50 shadow-sm rounded-lg px-4 py-2 border hover:bg-gray-100 cursor-pointer">
+                    <input type="checkbox" name="subjects" value="{{ subject }}" class="form-checkbox"
+                      {% if selected_subjects and subject in selected_subjects %}checked{% endif %} />
+                    <span class="text-gray-800">{{ subject }}</span>
+                  </label>
+                {% empty %}
+                  <p class="text-gray-500">No subjects found for this level.</p>
+                {% endfor %}
+              </div>
+            </div>
+          {% empty %}
+            <p class="text-gray-500">No subjects found for this tutor.</p>
+          {% endfor %}
+
           <p class="text-sm text-gray-500 mt-2">You can select multiple subjects you want to learn from this tutor.</p>
         </div>
 
         <!-- Time selection -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="grid grid-cols-3 gap-4 items-end">
           <div>
             <label class="block font-medium text-gray-700 mb-1">Session Time From</label>
-            <input type="time" name="time_from" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100" id="time_from" required />
+            <input type="time" name="time_from" id="time_from" class="w-full border rounded-md p-2" required />
           </div>
+
+          <div>
+            <label class="block font-medium text-gray-700 mb-1">Session Duration (hours)</label>
+            <select id="session_duration" name="duration" class="w-full border rounded-md p-2">
+              <option value="1">1 hour</option>
+              <option value="2">2 hours</option>
+              <option value="3">3 hours</option>
+            </select>
+          </div>
+
           <div>
             <label class="block font-medium text-gray-700 mb-1">Session Time To</label>
-            <input type="time" name="time_to" class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100" id="time_to" required />
-
+            <input type="time" name="time_to" id="time_to" class="w-full border rounded-md p-2" readonly required />
           </div>
         </div>
+
+        <script>
+          const timeFromInput = document.getElementById('time_from');
+          const timeToInput = document.getElementById('time_to');
+          const durationSelect = document.getElementById('session_duration');
+
+          function updateTimeTo() {
+            const startTime = timeFromInput.value;
+            const duration = parseInt(durationSelect.value) || 1;
+
+            if (startTime) {
+              let [hours, minutes] = startTime.split(':').map(Number);
+              hours += duration;
+              if (hours >= 24) hours -= 24;
+
+              const hh = String(hours).padStart(2, '0');
+              const mm = String(minutes).padStart(2, '0');
+              timeToInput.value = `${hh}:${mm}`;
+            }
+          }
+
+          timeFromInput.addEventListener('change', updateTimeTo);
+          durationSelect.addEventListener('change', updateTimeTo);
+          window.addEventListener('load', updateTimeTo);
+        </script>
 
         <!-- Date selection -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label class="block font-medium text-gray-700 mb-1">Counter Start Date</label>
-            <input type="date" class="w-full border rounded-md p-2" name="date_start" id="counter_start_date" required />
+            <label class="block font-medium text-gray-700 mb-1">Session Start Date</label>
+            <input type="date" class="w-full border rounded-md p-2" name="date_start" id="session_start_date" required />
           </div>
           <div>
-            <label class="block font-medium text-gray-700 mb-1">Counter End Date</label>
-            <input type="date" class="w-full border rounded-md p-2" name="date_end" id="counter_end_date" required />
+            <label class="block font-medium text-gray-700 mb-1">Session End Date</label>
+            <input type="date" class="w-full border rounded-md p-2" name="date_end" id="session_end_date" required />
           </div>
         </div>
-        
-        <script>
-          // Get today's date in YYYY-MM-DD format
-          const today = new Date().toISOString().split('T')[0];
-          document.getElementById("counter_start_date").setAttribute('min', today);
-          document.getElementById("counter_end_date").setAttribute('min', today);
-        </script>
-        
 
-        <!-- Rate input -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
+        <script>
+          const today = new Date().toISOString().split('T')[0];
+          const startDateInput = document.getElementById("session_start_date");
+          const endDateInput = document.getElementById("session_end_date");
+
+          startDateInput.setAttribute('min', today);
+          endDateInput.setAttribute('min', today);
+
+          startDateInput.addEventListener('change', () => {
+            endDateInput.setAttribute('min', startDateInput.value);
+            if (endDateInput.value < startDateInput.value) endDateInput.value = startDateInput.value;
+          });
+        </script>
+
+        <!-- Rate and Description -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-end mt-6">
           <div>
             <label class="block font-medium text-gray-700 mb-1">Your Proposed Rate (per hour)</label>
-            <div class="mb-4">
-              <input type="number" 
-                     name="perhour" 
-                     min="50" 
-                     step="any" 
-                     id="user_rate_per_hour" 
-                     class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-yellow-500 focus:border-yellow-500" 
-                     required />
-              <p id="rate_error" class="text-red-500 text-sm mt-1 hidden">Rate must be at least 50</p>
-            </div>
-            
-            <script>
-              const rateInput = document.getElementById('user_rate_per_hour');
-              const errorText = document.getElementById('rate_error');
-              let debounceTimer;
-            
-              rateInput.addEventListener('input', function() {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                  const rateValue = parseFloat(this.value);
-                  if (this.value !== '' && rateValue < 50) {
-                    errorText.classList.remove('hidden');
-                  } else {
-                    errorText.classList.add('hidden');
-                  }
-                }, 300); // Delay after typing stops
-              });
-            
-              rateInput.addEventListener('blur', function() {
-                const rateValue = parseFloat(this.value);
-                if (this.value === '' || rateValue < 50) {
-                  this.value = 50;
-                  errorText.classList.add('hidden');
-                }
-              });
-            </script>
-                   
-     
-            <p id="priceFeedback" class="text-sm text-red-600 mt-1"></p>
+            <input type="number" name="perhour" min="50" step="any" class="w-full border rounded-md p-2" required />
           </div>
           <div>
             <label class="block font-medium text-gray-700 mb-1">Leave a Message</label>
-            <textarea type="text" name="desc" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-yellow-500 focus:border-yellow-500" required /></textarea>
-
+            <textarea name="desc" class="w-full border rounded-md p-2" required></textarea>
           </div>
+        </div>
 
-          <!-- Mode Selection (Online/Offline) -->
+        <!-- Mode selection -->
         <div class="mt-6">
           <label class="block font-medium text-gray-700 mb-2">Preferred Mode</label>
           <div class="flex items-center space-x-6">
@@ -150,12 +156,11 @@
           </div>
         </div>
 
-          <div class="text-center">
-            <button type="submit"
-              class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-full shadow-md transition-transform transform hover:scale-105">
-              Submit Request
-            </button>
-          </div>
+        <div class="text-center mt-6">
+          <button type="submit"
+            class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-full shadow-md">
+            Submit Request
+          </button>
         </div>
 
       </form>

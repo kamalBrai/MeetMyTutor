@@ -1,54 +1,50 @@
 {% extends "base.html" %}
-{% block content %}
 {% load static %}
+{% block content %}
 
-<body class="bg-yellow-50 flex flex-col h-screen">
+<div class="flex flex-col h-[88vh] bg-yellow-50 rounded-lg shadow-md overflow-hidden">
 
   <!-- Chat Header -->
-  <header class="bg-yellow-400 text-white px-4 py-3 flex items-center shadow-md">
-    <h1 class="text-lg font-semibold">
-      <div class="flex items-center space-x-3">
-         {% if other_user.usertype == "student" %}
-            {% if other_profile.profile_img %}
-              <a href="{% url 'view_student_profile' other_user.id %}">
-                <img src="{{ other_profile.profile_img.url }}" class="w-10 h-10 rounded-full" alt="profile">
-              </a>
-            {% else %}
-              <a href="{% url 'view_student_profile' other_user.id %}">
-                <img src="{% static 'images/default.jpg' %}" class="w-10 h-10 rounded-full" alt="default profile">
-              </a>
-            {% endif %}
-         {% elif other_user.usertype == "tutor" %}
-            {% if other_profile.profile_img %}
-              <a href="{% url 'view_tutor_profile' other_user.id %}">
-                <img src="{{ other_profile.profile_img.url }}" class="w-10 h-10 rounded-full" alt="profile">
-              </a>
-            {% else %}
-              <a href="{% url 'view_tutor_profile' other_user.id %}">
-                <img src="{% static 'images/default.jpg' %}" class="w-10 h-10 rounded-full" alt="default profile">
-              </a>
-            {% endif %}
-         {% endif %}
-
-         <span class="font-bold">{{ other_user.username }}</span>
-      </div>
-    </h1>
+  <header class="bg-yellow-400 text-white px-5 py-3 flex items-center shadow-md">
+    <div class="flex items-center space-x-3">
+      {% if other_user.usertype == "student" %}
+          {% if other_profile.profile_img %}
+            <a href="{% url 'view_student_profile' other_user.id %}">
+              <img src="{{ other_profile.profile_img.url }}" class="w-12 h-12 rounded-full object-cover border-2 border-white" alt="profile">
+            </a>
+          {% else %}
+            <a href="{% url 'view_student_profile' other_user.id %}">
+              <img src="{% static 'images/default.jpg' %}" class="w-12 h-12 rounded-full object-cover border-2 border-white" alt="default profile">
+            </a>
+          {% endif %}
+      {% elif other_user.usertype == "tutor" %}
+          {% if other_profile.profile_img %}
+            <a href="{% url 'view_tutor_profile' other_user.id %}">
+              <img src="{{ other_profile.profile_img.url }}" class="w-12 h-12 rounded-full object-cover border-2 border-white" alt="profile">
+            </a>
+          {% else %}
+            <a href="{% url 'view_tutor_profile' other_user.id %}">
+              <img src="{% static 'images/default.jpg' %}" class="w-12 h-12 rounded-full object-cover border-2 border-white" alt="default profile">
+            </a>
+          {% endif %}
+      {% endif %}
+      <span class="text-lg font-semibold">{{ other_user.username }}</span>
+    </div>
   </header>
 
   <!-- Chat Messages Container -->
-  <main id="chat-log" class="flex-1 overflow-y-auto p-4 space-y-3 bg-yellow-50">
+  <main id="chat-log" class="overflow-y-auto px-6 py-4 bg-yellow-50 space-y-3 h-[60vh]">
     {% for msg in messages %}
       <div class="flex {% if msg.sender.id == current_user.id %}justify-end{% else %}justify-start{% endif %}">
-        <div class="max-w-xs md:max-w-md px-4 py-2 rounded-2xl shadow text-sm relative
+        <div class="max-w-[75%] px-4 py-3 rounded-2xl shadow text-sm relative break-words
           {% if msg.sender.id == current_user.id %}
             bg-blue-600 text-white rounded-br-none
           {% else %}
             bg-white text-gray-900 rounded-bl-none border border-yellow-200
           {% endif %}">
-          
-          <p class="break-words">{{ msg.content }}</p>
-          
-          <div class="flex justify-end items-center text-xs mt-1 {% if msg.sender.id == current_user.id %}text-gray-200{% else %}text-gray-400{% endif %}">
+          <p>{{ msg.content }}</p>
+          <div class="flex justify-end items-center text-xs mt-1 
+            {% if msg.sender.id == current_user.id %}text-gray-200{% else %}text-gray-400{% endif %}">
             {% if msg.sender.id == current_user.id %}
               <span class="mr-1">✔✔</span>
             {% endif %}
@@ -57,12 +53,12 @@
         </div>
       </div>
     {% empty %}
-      <p class="text-gray-400 text-center">No previous messages</p>
+      <p class="text-gray-400 text-center mt-10">No previous messages</p>
     {% endfor %}
   </main>
 
   <!-- Chat Input Area -->
-  <footer class="bg-white border-t border-gray-300 p-3 flex items-center">
+  <footer class="bg-white border-t border-gray-300 px-4 py-3 flex items-center">
     <input
       id="chat-message-input"
       type="text"
@@ -71,7 +67,7 @@
     />
     <button
       id="chat-message-submit"
-      class="ml-2 bg-yellow-400 text-white rounded-full px-4 py-2 font-medium hover:bg-yellow-500 transition"
+      class="ml-3 bg-yellow-400 text-white rounded-full px-5 py-2 font-medium hover:bg-yellow-500 transition"
     >
       Send
     </button>
@@ -99,9 +95,9 @@
       msgDiv.className = "flex " + (isMine ? "justify-end" : "justify-start");
 
       msgDiv.innerHTML = `
-        <div class="max-w-xs md:max-w-md px-4 py-2 rounded-2xl shadow text-sm relative
+        <div class="max-w-[75%] px-4 py-3 rounded-2xl shadow text-sm relative break-words
           ${isMine ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white text-gray-900 rounded-bl-none border border-yellow-200'}">
-          <p class="break-words">${message}</p>
+          <p>${message}</p>
           <div class="flex justify-end items-center text-xs mt-1 ${isMine ? 'text-gray-200' : 'text-gray-400'}">
             ${isMine ? '<span class="mr-1">✔✔</span>' : ''}
             <span>${new Date(timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
@@ -112,17 +108,14 @@
       chatLog.scrollTop = chatLog.scrollHeight;
     }
 
-    // ✅ DO NOT re-render old messages (we already rendered them via Django template)
-    // Only handle *new incoming messages* from WebSocket
-
-    // Incoming WebSocket messages
+    // Handle incoming messages (no popups)
     chatSocket.onmessage = function(e) {
       const data = JSON.parse(e.data);
       appendMessage(data.message, data.username, data.timestamp);
     };
 
-    chatSocket.onclose = function(e) {
-      console.error("Chat socket closed unexpectedly");
+    chatSocket.onclose = function() {
+      console.warn("Chat socket closed unexpectedly");
     };
 
     // Send message
@@ -139,11 +132,12 @@
       if (e.key === "Enter") sendButton.click();
     });
 
-    // ✅ Auto scroll to bottom when page loads
+    // Auto-scroll to bottom on page load
     window.onload = function() {
       chatLog.scrollTop = chatLog.scrollHeight;
     };
   </script>
-</body>
+
+</div>
 
 {% endblock content %}
